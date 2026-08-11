@@ -4,7 +4,6 @@ import winston from 'winston';
 import { env } from './env.js';
 
 const logDirectory = path.resolve('logs');
-fs.mkdirSync(logDirectory, { recursive: true });
 
 const fileFormat = winston.format.combine(
   winston.format.timestamp(),
@@ -26,11 +25,12 @@ export const logger = winston.createLogger({
   format: fileFormat,
   defaultMeta: { service: 'kas-wifi-api' },
   transports: [
-    new winston.transports.File({ filename: path.join(logDirectory, 'error.log'), level: 'error' }),
-    new winston.transports.File({ filename: path.join(logDirectory, 'combined.log') }),
+    new winston.transports.Console({ format: consoleFormat }),
   ],
 });
 
 if (env.nodeEnv !== 'production') {
-  logger.add(new winston.transports.Console({ format: consoleFormat }));
+  fs.mkdirSync(logDirectory, { recursive: true });
+  logger.add(new winston.transports.File({ filename: path.join(logDirectory, 'error.log'), level: 'error' }));
+  logger.add(new winston.transports.File({ filename: path.join(logDirectory, 'combined.log') }));
 }
