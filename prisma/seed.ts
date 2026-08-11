@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import bcrypt from 'bcryptjs';
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { AuthProvider, PrismaClient, UserRole } from '../src/generated/prisma/client.js';
 
 const databaseUrlValue = process.env.DATABASE_URL;
@@ -9,20 +9,9 @@ if (!databaseUrlValue) {
   throw new Error('DATABASE_URL belum dikonfigurasi.');
 }
 
-const databaseUrl = new URL(databaseUrlValue);
-const databaseName = databaseUrl.pathname.replace(/^\//, '');
-
-if (!databaseName) {
-  throw new Error('Nama database wajib tersedia di DATABASE_URL.');
-}
-
-const adapter = new PrismaMariaDb({
-  host: databaseUrl.hostname,
-  port: databaseUrl.port ? Number(databaseUrl.port) : 3306,
-  user: decodeURIComponent(databaseUrl.username),
-  password: decodeURIComponent(databaseUrl.password),
-  database: databaseName,
-  connectionLimit: 1,
+const adapter = new PrismaPg({
+  connectionString: databaseUrlValue,
+  max: 1,
 });
 
 const prisma = new PrismaClient({ adapter });

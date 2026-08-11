@@ -5,7 +5,7 @@ Backend Node.js untuk pengelolaan kas WiFi, tagihan pelanggan, pendapatan, penge
 ## Teknologi
 
 - Node.js + Express + TypeScript
-- MySQL + Prisma ORM
+- Supabase PostgreSQL + Prisma ORM
 - Joi untuk validasi environment dan request
 - Winston untuk logging
 - JWT untuk access token
@@ -33,7 +33,7 @@ User yang dibuat owner mempunyai `parent_id = id owner`. Query pelanggan dan keu
 ## Menjalankan
 
 1. Salin dan sesuaikan `.env.example` menjadi `.env`.
-2. Pastikan database MySQL `kas_wifi` dan user database khusus aplikasi tersedia.
+2. Isi `DATABASE_URL` dengan connection string Supabase PostgreSQL (Supavisor session pooler).
 3. Jalankan migrasi dan server:
 
 ```bash
@@ -111,21 +111,12 @@ Frontend mengirim ID token yang diterima dari Google Identity Services:
 
 Server memverifikasi signature, audience, issuer, dan masa berlaku token melalui `google-auth-library`. Isi `GOOGLE_CLIENT_ID` pada backend dengan Web Client ID yang sama dengan frontend.
 
-## Contoh persiapan MySQL
+## Koneksi Supabase PostgreSQL
 
-Jalankan sebagai administrator MySQL, lalu gunakan password yang kuat:
-
-```sql
-CREATE DATABASE kas_wifi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'kas_wifi_user'@'localhost' IDENTIFIED BY 'password-yang-kuat';
-GRANT ALL PRIVILEGES ON kas_wifi.* TO 'kas_wifi_user'@'localhost';
-FLUSH PRIVILEGES;
-```
-
-Sesuaikan koneksinya di `.env`:
+Salin Supavisor session pooler connection string dari menu **Connect** pada project Supabase, lalu sesuaikan `.env`:
 
 ```env
-DATABASE_URL="mysql://kas_wifi_user:password-yang-kuat@localhost:3306/kas_wifi"
+DATABASE_URL="postgresql://postgres.PROJECT_REF:password@REGION.pooler.supabase.com:5432/postgres?sslmode=require"
 ```
 
 ## Pembayaran pelanggan

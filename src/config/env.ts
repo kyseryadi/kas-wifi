@@ -4,7 +4,7 @@ import Joi from 'joi';
 const envSchema = Joi.object({
   NODE_ENV: Joi.string().valid('development', 'test', 'production').default('development'),
   PORT: Joi.number().port().default(3000),
-  DATABASE_URL: Joi.string().uri({ scheme: ['mysql'] }).required(),
+  DATABASE_URL: Joi.string().uri({ scheme: ['postgres', 'postgresql'] }).required(),
   DATABASE_CONNECTION_LIMIT: Joi.number().integer().min(1).max(100).default(5),
   JWT_SECRET: Joi.string().min(32).required(),
   JWT_EXPIRES_IN: Joi.string().default('7d'),
