@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  CS
+  TECHNICIAN
+  STAFF
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  BOTH
+}
+
+enum IncomeSource {
+  CUSTOMER_PAYMENT
+  MANUAL
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  parentId     Int          @default(0) @map("parent_id")
+  name         String       @db.VarChar(120)
+  email        String       @unique @db.VarChar(191)
+  passwordHash String?      @map("password_hash") @db.VarChar(255)
+  googleId     String?      @unique @map("google_id") @db.VarChar(191)
+  avatarUrl    String?      @map("avatar_url") @db.Text
+  role         UserRole
+  authProvider AuthProvider @default(EMAIL) @map("auth_provider")
+  isActive     Boolean      @default(true) @map("is_active")
+  lastLoginAt  DateTime?    @map("last_login_at")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@index([parentId])
+  @@index([parentId, role])
+  @@map("users")
+}
+
+model Customer {
+  id          Int               @id @default(autoincrement())
+  ownerId     Int               @map("owner_id")
+  name        String            @db.VarChar(120)
+  address     String            @db.Text
+  packageName String            @map("package_name") @db.VarChar(120)
+  isActive    Boolean           @default(true) @map("is_active")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  payments    CustomerPayment[]
+
+  @@index([ownerId])
+  @@index([ownerId, name])
+  @@map("customers")
+}
+
+model CustomerPayment {
+  id           Int       @id @default(autoincrement())
+  ownerId      Int       @map("owner_id")
+  customerId   Int       @map("customer_id")
+  paymentMonth DateTime  @map("payment_month") @db.Date
+  amount       Decimal   @db.Decimal(15, 2)
+  paidAt       DateTime  @default(now()) @map("paid_at")
+  notes        String?   @db.VarChar(255)
+  receivedById Int       @map("received_by_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  customer     Customer  @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  income       Income?
+
+  @@unique([customerId, paymentMonth])
+  @@index([ownerId, paymentMonth])
+  @@map("customer_payments")
+}
+
+model Income {
+  id                Int              @id @default(autoincrement())
+  ownerId           Int              @map("owner_id")
+  customerPaymentId Int?             @unique @map("customer_payment_id")
+  source            IncomeSource     @default(MANUAL)
+  description       String           @db.VarChar(255)
+  amount            Decimal          @db.Decimal(15, 2)
+  incomeDate        DateTime         @map("income_date") @db.Date
+  createdById       Int              @map("created_by_id")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  customerPayment   CustomerPayment? @relation(fields: [customerPaymentId], references: [id], onDelete: Restrict)
+
+  @@index([ownerId, incomeDate])
+  @@index([ownerId, source])
+  @@map("incomes")
+}
+
+model Expense {
+  id          Int      @id @default(autoincrement())
+  ownerId     Int      @map("owner_id")
+  description String   @db.VarChar(255)
+  amount      Decimal  @db.Decimal(15, 2)
+  expenseDate DateTime @map("expense_date") @db.Date
+  createdById Int      @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([ownerId, expenseDate])
+  @@map("expenses")
+}
