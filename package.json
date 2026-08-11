@@ -18,7 +18,7 @@
     "prisma:seed": "tsx prisma/seed.ts"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": "22.x"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
@@ -43,6 +43,6 @@
     "@types/pg": "^8.15.5",
     "prisma": "^7.9.1",
     "tsx": "^4.23.10",
-    "typescript": "^7.0.2"
+    "typescript": "5.9.3"
   }
 }
