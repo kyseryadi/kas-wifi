@@ -9,12 +9,17 @@ import routes from './routes/index.js';
 
 export const app = express();
 const helmet = helmetModule.default as unknown as () => RequestHandler;
+const allowedOrigins = new Set([
+  ...env.corsOrigins,
+  'https://localhost',
+  'capacitor://localhost',
+]);
 
 app.disable('x-powered-by');
 app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || env.corsOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.has(origin)) {
       callback(null, true);
       return;
     }
