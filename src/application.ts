@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import type { RequestHandler } from 'express';
 import * as helmetModule from 'helmet';
 import { env } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
@@ -7,9 +8,10 @@ import { requestLogger } from './middleware/request-logger.js';
 import routes from './routes/index.js';
 
 export const app = express();
+const helmet = helmetModule.default as unknown as () => RequestHandler;
 
 app.disable('x-powered-by');
-app.use(helmetModule.default());
+app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
     if (!origin || env.corsOrigins.includes(origin)) {

@@ -1,2 +1,2 @@
 // Vercel entrypoint. The TypeScript sources are compiled by `npm run build`.
-export { default } from './dist/app.js';
+export { default } from './dist/application.js';
