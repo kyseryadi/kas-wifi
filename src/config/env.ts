@@ -10,7 +10,6 @@ const envSchema = Joi.object({
   JWT_EXPIRES_IN: Joi.string().default('7d'),
   GOOGLE_CLIENT_ID: Joi.string().allow('').default(''),
   GOOGLE_AUTO_REGISTER_OWNER: Joi.boolean().truthy('true').falsy('false').default(true),
-  CORS_ORIGIN: Joi.string().default('http://localhost:5173'),
   LOG_LEVEL: Joi.string().valid('error', 'warn', 'info', 'http', 'debug').default('info'),
 }).unknown(true);
 
@@ -32,6 +31,5 @@ export const env = {
   jwtExpiresIn: value.JWT_EXPIRES_IN as string,
   googleClientId: value.GOOGLE_CLIENT_ID as string,
   googleAutoRegisterOwner: value.GOOGLE_AUTO_REGISTER_OWNER as boolean,
-  corsOrigins: (value.CORS_ORIGIN as string).split(',').map((origin) => origin.trim()),
   logLevel: value.LOG_LEVEL as string,
 };
