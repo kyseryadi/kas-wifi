@@ -4,7 +4,7 @@ import * as authController from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { validate } from '../middleware/validate.js';
 import { asyncHandler } from '../utils/async-handler.js';
-import { emailLoginSchema, googleLoginSchema, registerOwnerSchema } from '../validation/auth.validation.js';
+import { changePasswordSchema, emailLoginSchema, googleLoginSchema, registerOwnerSchema } from '../validation/auth.validation.js';
 
 const router = Router();
 const authLimiter = rateLimit({
@@ -19,5 +19,6 @@ router.post('/register-owner', authLimiter, validate(registerOwnerSchema), async
 router.post('/login', authLimiter, validate(emailLoginSchema), asyncHandler(authController.loginEmail));
 router.post('/google', authLimiter, validate(googleLoginSchema), asyncHandler(authController.loginGoogle));
 router.get('/me', authenticate, asyncHandler(authController.me));
+router.patch('/password', authenticate, validate(changePasswordSchema), asyncHandler(authController.changePassword));
 
 export default router;

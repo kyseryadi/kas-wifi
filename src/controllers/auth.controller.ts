@@ -20,3 +20,8 @@ export const me = async (request: Request, response: Response) => {
   const user = await authService.getCurrentUser(request.auth!.userId);
   response.json({ success: true, data: user });
 };
+
+export const changePassword = async (request: Request, response: Response) => {
+  await authService.changePassword(request.auth!.userId, request.body.currentPassword, request.body.newPassword);
+  response.json({ success: true, message: 'Password berhasil diubah.' });
+};

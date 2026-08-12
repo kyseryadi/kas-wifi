@@ -152,3 +152,23 @@ export const getCurrentUser = async (userId: number) => {
 
   return toUserView(user);
 };
+
+export const changePassword = async (userId: number, currentPassword: string, newPassword: string) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user?.isActive) {
+    throw new AppError(401, 'Akun tidak ditemukan atau tidak aktif.', 'INVALID_ACCOUNT');
+  }
+
+  if (user.passwordHash && !(await bcrypt.compare(currentPassword, user.passwordHash))) {
+    throw new AppError(401, 'Password saat ini tidak sesuai.', 'INVALID_CURRENT_PASSWORD');
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      passwordHash: await bcrypt.hash(newPassword, SALT_ROUNDS),
+      authProvider: user.googleId ? AuthProvider.BOTH : AuthProvider.EMAIL,
+    },
+  });
+};

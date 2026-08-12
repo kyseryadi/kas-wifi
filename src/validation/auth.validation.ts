@@ -17,3 +17,10 @@ export const emailLoginSchema = Joi.object({
 export const googleLoginSchema = Joi.object({
   credential: Joi.string().min(20).required(),
 });
+
+export const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().max(72).allow('').default(''),
+  newPassword: Joi.string().min(8).max(72).required()
+    .invalid(Joi.ref('currentPassword'))
+    .messages({ 'any.invalid': 'Password baru harus berbeda dari password saat ini.' }),
+});
