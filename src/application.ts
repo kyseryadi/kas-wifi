@@ -11,6 +11,9 @@ export const app = express();
 const helmet = helmetModule.default as unknown as () => RequestHandler;
 
 app.disable('x-powered-by');
+// Vercel meneruskan request melalui satu lapisan reverse proxy.
+// Ini membuat req.ip dan express-rate-limit membaca IP klien dengan benar.
+app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
