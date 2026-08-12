@@ -2,6 +2,7 @@ import { IncomeSource, Prisma } from '../generated/prisma/client.js';
 import { prisma } from '../config/prisma.js';
 import { AppError } from '../utils/app-error.js';
 import { parsePaymentMonth } from '../utils/date.js';
+import type { CustomerImportRow } from '../utils/customer-import.js';
 
 interface CustomerInput {
   name: string;
@@ -27,6 +28,7 @@ export const listCustomers = async (ownerId: number, search?: string) => {
   const customers = await prisma.customer.findMany({
     where: {
       ownerId,
+      isActive: true,
       ...(search ? {
         OR: [
           { name: { contains: search } },
@@ -54,6 +56,20 @@ export const updateCustomer = async (ownerId: number, customerId: number, input:
   const customer = await prisma.customer.findFirst({ where: { id: customerId, ownerId } });
   if (!customer) throw new AppError(404, 'Pelanggan tidak ditemukan.', 'CUSTOMER_NOT_FOUND');
   return prisma.customer.update({ where: { id: customerId }, data: input });
+};
+
+export const deleteCustomer = async (ownerId: number, customerId: number) => {
+  const customer = await prisma.customer.findFirst({ where: { id: customerId, ownerId, isActive: true } });
+  if (!customer) throw new AppError(404, 'Pelanggan tidak ditemukan.', 'CUSTOMER_NOT_FOUND');
+
+  await prisma.customer.update({ where: { id: customerId }, data: { isActive: false } });
+};
+
+export const importCustomers = async (ownerId: number, rows: CustomerImportRow[]) => {
+  const result = await prisma.customer.createMany({
+    data: rows.map((row) => ({ ownerId, ...row })),
+  });
+  return { imported: result.count };
 };
 
 export const createPayment = async (ownerId: number, userId: number, customerId: number, input: PaymentInput) => {

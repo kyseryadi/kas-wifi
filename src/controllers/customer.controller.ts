@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express';
 import * as customerService from '../services/customer.service.js';
 import { getOwnerId } from '../utils/tenant.js';
+import { AppError } from '../utils/app-error.js';
+import { parseCustomerWorkbook } from '../utils/customer-import.js';
 
 const idFrom = (request: Request) => Number(request.params.id);
 
@@ -17,6 +19,21 @@ export const create = async (request: Request, response: Response) => {
 export const update = async (request: Request, response: Response) => {
   const data = await customerService.updateCustomer(getOwnerId(request), idFrom(request), request.body);
   response.json({ success: true, message: 'Pelanggan berhasil diperbarui.', data });
+};
+
+export const remove = async (request: Request, response: Response) => {
+  await customerService.deleteCustomer(getOwnerId(request), idFrom(request));
+  response.json({ success: true, message: 'Pelanggan berhasil dihapus.' });
+};
+
+export const importExcel = async (request: Request, response: Response) => {
+  if (!request.file) {
+    throw new AppError(422, 'File Excel wajib dipilih.', 'EXCEL_FILE_REQUIRED');
+  }
+
+  const rows = await parseCustomerWorkbook(request.file.buffer);
+  const data = await customerService.importCustomers(getOwnerId(request), rows);
+  response.status(201).json({ success: true, message: `${data.imported} pelanggan berhasil diimpor.`, data });
 };
 
 export const pay = async (request: Request, response: Response) => {
