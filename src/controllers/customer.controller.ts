@@ -7,7 +7,12 @@ import { parseCustomerWorkbook } from '../utils/customer-import.js';
 const idFrom = (request: Request) => Number(request.params.id);
 
 export const list = async (request: Request, response: Response) => {
-  const data = await customerService.listCustomers(getOwnerId(request), request.query.search as string | undefined);
+  const data = await customerService.listCustomers(
+    getOwnerId(request),
+    request.query.search as string | undefined,
+    request.query.paymentStatus as string | undefined,
+    request.query.paymentMonth as string | undefined,
+  );
   response.json({ success: true, data });
 };
 

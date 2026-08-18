@@ -24,11 +24,21 @@ const paymentView = (payment: {
   notes: string | null;
 }) => ({ ...payment, amount: Number(payment.amount) });
 
-export const listCustomers = async (ownerId: number, search?: string) => {
+export const listCustomers = async (ownerId: number, search?: string, paymentStatus?: string, paymentMonth?: string) => {
+  const selectedPaymentMonth = paymentMonth ? parsePaymentMonth(paymentMonth) : undefined;
+  if (paymentStatus && !['PAID', 'UNPAID'].includes(paymentStatus)) {
+    throw new AppError(422, 'Filter status pembayaran tidak valid.', 'INVALID_PAYMENT_STATUS');
+  }
+  if (paymentStatus && !selectedPaymentMonth) {
+    throw new AppError(422, 'Bulan pembayaran wajib diisi untuk filter status.', 'PAYMENT_MONTH_REQUIRED');
+  }
+
   const customers = await prisma.customer.findMany({
     where: {
       ownerId,
       isActive: true,
+      ...(paymentStatus === 'PAID' ? { payments: { some: { paymentMonth: selectedPaymentMonth } } } : {}),
+      ...(paymentStatus === 'UNPAID' ? { payments: { none: { paymentMonth: selectedPaymentMonth } } } : {}),
       ...(search ? {
         OR: [
           { name: { contains: search } },
@@ -39,12 +49,17 @@ export const listCustomers = async (ownerId: number, search?: string) => {
     },
     include: {
       payments: { orderBy: { paymentMonth: 'desc' }, take: 1 },
+      ...(selectedPaymentMonth ? {
+        _count: { select: { payments: { where: { paymentMonth: selectedPaymentMonth } } } },
+      } : {}),
     },
     orderBy: { name: 'asc' },
   });
 
   return customers.map(({ payments, ...customer }) => ({
     ...customer,
+    isPaidForMonth: '_count' in customer && customer._count.payments > 0,
+    ...('_count' in customer ? { _count: undefined } : {}),
     latestPayment: payments[0] ? paymentView(payments[0]) : null,
   }));
 };
