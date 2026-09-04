@@ -25,9 +25,15 @@ const paymentView = (payment: {
   notes: string | null;
 }) => ({ ...payment, amount: Number(payment.amount) });
 
+const monthsBefore = (createdAt: Date, paymentMonth: Date) => Math.max(0,
+  (paymentMonth.getUTCFullYear() - createdAt.getUTCFullYear()) * 12
+  + paymentMonth.getUTCMonth()
+  - createdAt.getUTCMonth(),
+);
+
 export const listCustomers = async (ownerId: number, search?: string, paymentStatus?: string, paymentMonth?: string) => {
   const selectedPaymentMonth = paymentMonth ? parsePaymentMonth(paymentMonth) : undefined;
-  if (paymentStatus && !['PAID', 'UNPAID'].includes(paymentStatus)) {
+  if (paymentStatus && !['PAID', 'UNPAID', 'OVERDUE'].includes(paymentStatus)) {
     throw new AppError(422, 'Filter status pembayaran tidak valid.', 'INVALID_PAYMENT_STATUS');
   }
   if (paymentStatus && !selectedPaymentMonth) {
@@ -57,16 +63,41 @@ export const listCustomers = async (ownerId: number, search?: string, paymentSta
     orderBy: { name: 'asc' },
   });
 
-  return customers.map(({ payments, ...customer }) => {
+  const priorPaymentCounts = selectedPaymentMonth && customers.length > 0
+    ? await prisma.customerPayment.groupBy({
+      by: ['customerId'],
+      where: {
+        ownerId,
+        customerId: { in: customers.map((customer) => customer.id) },
+        paymentMonth: { lt: selectedPaymentMonth },
+      },
+      _count: { _all: true },
+    })
+    : [];
+  const priorPaymentCountByCustomer = new Map(
+    priorPaymentCounts.map((item) => [item.customerId, item._count._all]),
+  );
+
+  const customerViews = customers.map(({ payments, ...customer }) => {
     const isPaidForMonth = '_count' in customer && customer._count.payments > 0;
+    const overdueMonths = selectedPaymentMonth
+      ? Math.max(0, monthsBefore(customer.createdAt, selectedPaymentMonth)
+        - (priorPaymentCountByCustomer.get(customer.id) ?? 0))
+      : 0;
     const { _count: _ignored, ...customerData } = customer;
     return {
       ...customerData,
       amount: Number(customer.amount),
       isPaidForMonth,
+      isOverdue: overdueMonths > 0,
+      overdueMonths,
       latestPayment: payments[0] ? paymentView(payments[0]) : null,
     };
   });
+
+  return paymentStatus === 'OVERDUE'
+    ? customerViews.filter((customer) => customer.isOverdue)
+    : customerViews;
 };
 
 export const createCustomer = (ownerId: number, input: CustomerInput) =>
