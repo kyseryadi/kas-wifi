@@ -8,6 +8,7 @@ interface CustomerInput {
   name: string;
   address: string;
   packageName: string;
+  amount: number;
 }
 
 interface PaymentInput {
@@ -56,12 +57,16 @@ export const listCustomers = async (ownerId: number, search?: string, paymentSta
     orderBy: { name: 'asc' },
   });
 
-  return customers.map(({ payments, ...customer }) => ({
-    ...customer,
-    isPaidForMonth: '_count' in customer && customer._count.payments > 0,
-    ...('_count' in customer ? { _count: undefined } : {}),
-    latestPayment: payments[0] ? paymentView(payments[0]) : null,
-  }));
+  return customers.map(({ payments, ...customer }) => {
+    const isPaidForMonth = '_count' in customer && customer._count.payments > 0;
+    const { _count: _ignored, ...customerData } = customer;
+    return {
+      ...customerData,
+      amount: Number(customer.amount),
+      isPaidForMonth,
+      latestPayment: payments[0] ? paymentView(payments[0]) : null,
+    };
+  });
 };
 
 export const createCustomer = (ownerId: number, input: CustomerInput) =>

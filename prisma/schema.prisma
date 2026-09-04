@@ -54,6 +54,7 @@ model Customer {
   name        String            @db.VarChar(120)
   address     String            @db.Text
   packageName String            @map("package_name") @db.VarChar(120)
+  amount      Decimal           @db.Decimal(15, 2)
   isActive    Boolean           @default(true) @map("is_active")
   createdAt   DateTime          @default(now()) @map("created_at")
   updatedAt   DateTime          @updatedAt @map("updated_at")

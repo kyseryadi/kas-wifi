@@ -6,6 +6,7 @@ export interface CustomerImportRow {
   name: string;
   address: string;
   packageName: string;
+  amount: number;
 }
 
 const headerAliases: Record<string, keyof CustomerImportRow> = {
@@ -17,6 +18,9 @@ const headerAliases: Record<string, keyof CustomerImportRow> = {
   nama_paket: 'packageName',
   package_name: 'packageName',
   paket: 'packageName',
+  amount: 'amount',
+  nominal: 'amount',
+  nominal_tagihan: 'amount',
 };
 
 const normalizeHeader = (value: string) => value
@@ -37,12 +41,12 @@ export const parseCustomerWorkbook = async (buffer: Buffer): Promise<CustomerImp
     if (mapped) columns.set(mapped, columnIndex);
   });
 
-  const missingHeaders = (['name', 'address', 'packageName'] as const)
+  const missingHeaders = (['name', 'address', 'packageName', 'amount'] as const)
     .filter((field) => !columns.has(field));
   if (missingHeaders.length > 0) {
     throw new AppError(
       422,
-      'Kolom Excel wajib: nama, alamat, nama_paket.',
+      'Kolom Excel wajib: nama, alamat, nama_paket, amount.',
       'INVALID_EXCEL_HEADERS',
       missingHeaders.map((field) => ({ field, message: 'Kolom tidak ditemukan.' })),
     );
@@ -57,8 +61,9 @@ export const parseCustomerWorkbook = async (buffer: Buffer): Promise<CustomerImp
       name: String(row[columns.get('name')!] ?? '').trim(),
       address: String(row[columns.get('address')!] ?? '').trim(),
       packageName: String(row[columns.get('packageName')!] ?? '').trim(),
+      amount: row[columns.get('amount')!] ?? '',
     };
-    if (!raw.name && !raw.address && !raw.packageName) return;
+    if (!raw.name && !raw.address && !raw.packageName && raw.amount === '') return;
 
     if (rows.length + errors.length >= 1000) {
       throw new AppError(422, 'Maksimal 1.000 pelanggan dalam satu file.', 'IMPORT_ROW_LIMIT');

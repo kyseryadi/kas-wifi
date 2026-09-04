@@ -99,6 +99,7 @@ export const CustomerScalarFieldEnum = {
   name: 'name',
   address: 'address',
   packageName: 'packageName',
+  amount: 'amount',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
