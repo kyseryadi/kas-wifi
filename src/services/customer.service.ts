@@ -9,6 +9,7 @@ interface CustomerInput {
   address: string;
   packageName: string;
   amount: number;
+  dueDay: number;
 }
 
 interface PaymentInput {
@@ -30,6 +31,17 @@ const monthsBefore = (createdAt: Date, paymentMonth: Date) => Math.max(0,
   + paymentMonth.getUTCMonth()
   - createdAt.getUTCMonth(),
 );
+
+const isPastDueDay = (paymentMonth: Date, dueDay: number, isPaid: boolean) => {
+  if (isPaid) return false;
+  const jakartaNow = new Date(Date.now() + (7 * 60 * 60 * 1000));
+  const year = paymentMonth.getUTCFullYear();
+  const month = paymentMonth.getUTCMonth();
+  const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return year === jakartaNow.getUTCFullYear()
+    && month === jakartaNow.getUTCMonth()
+    && jakartaNow.getUTCDate() > Math.min(dueDay, lastDayOfMonth);
+};
 
 export const listCustomers = async (ownerId: number, search?: string, paymentStatus?: string, paymentMonth?: string) => {
   const selectedPaymentMonth = paymentMonth ? parsePaymentMonth(paymentMonth) : undefined;
@@ -83,6 +95,7 @@ export const listCustomers = async (ownerId: number, search?: string, paymentSta
     const overdueMonths = selectedPaymentMonth
       ? Math.max(0, monthsBefore(customer.createdAt, selectedPaymentMonth)
         - (priorPaymentCountByCustomer.get(customer.id) ?? 0))
+        + (isPastDueDay(selectedPaymentMonth, customer.dueDay, isPaidForMonth) ? 1 : 0)
       : 0;
     const { _count: _ignored, ...customerData } = customer;
     return {

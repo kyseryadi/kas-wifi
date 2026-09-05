@@ -5,6 +5,7 @@ export const createCustomerSchema = Joi.object({
   address: Joi.string().min(3).max(1000).trim().required(),
   packageName: Joi.string().min(2).max(120).trim().required(),
   amount: Joi.number().positive().precision(2).max(9999999999999.99).required(),
+  dueDay: Joi.number().integer().min(1).max(31).default(10),
 });
 
 export const updateCustomerSchema = Joi.object({
@@ -12,6 +13,7 @@ export const updateCustomerSchema = Joi.object({
   address: Joi.string().min(3).max(1000).trim(),
   packageName: Joi.string().min(2).max(120).trim(),
   amount: Joi.number().positive().precision(2).max(9999999999999.99),
+  dueDay: Joi.number().integer().min(1).max(31),
   isActive: Joi.boolean(),
 }).min(1);
 

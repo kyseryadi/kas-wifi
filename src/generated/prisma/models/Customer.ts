@@ -30,12 +30,14 @@ export type CustomerAvgAggregateOutputType = {
   id: number | null
   ownerId: number | null
   amount: runtime.Decimal | null
+  dueDay: number | null
 }
 
 export type CustomerSumAggregateOutputType = {
   id: number | null
   ownerId: number | null
   amount: runtime.Decimal | null
+  dueDay: number | null
 }
 
 export type CustomerMinAggregateOutputType = {
@@ -45,6 +47,7 @@ export type CustomerMinAggregateOutputType = {
   address: string | null
   packageName: string | null
   amount: runtime.Decimal | null
+  dueDay: number | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -57,6 +60,7 @@ export type CustomerMaxAggregateOutputType = {
   address: string | null
   packageName: string | null
   amount: runtime.Decimal | null
+  dueDay: number | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -69,6 +73,7 @@ export type CustomerCountAggregateOutputType = {
   address: number
   packageName: number
   amount: number
+  dueDay: number
   isActive: number
   createdAt: number
   updatedAt: number
@@ -80,12 +85,14 @@ export type CustomerAvgAggregateInputType = {
   id?: true
   ownerId?: true
   amount?: true
+  dueDay?: true
 }
 
 export type CustomerSumAggregateInputType = {
   id?: true
   ownerId?: true
   amount?: true
+  dueDay?: true
 }
 
 export type CustomerMinAggregateInputType = {
@@ -95,6 +102,7 @@ export type CustomerMinAggregateInputType = {
   address?: true
   packageName?: true
   amount?: true
+  dueDay?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -107,6 +115,7 @@ export type CustomerMaxAggregateInputType = {
   address?: true
   packageName?: true
   amount?: true
+  dueDay?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -119,6 +128,7 @@ export type CustomerCountAggregateInputType = {
   address?: true
   packageName?: true
   amount?: true
+  dueDay?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -218,6 +228,7 @@ export type CustomerGroupByOutputType = {
   address: string
   packageName: string
   amount: runtime.Decimal
+  dueDay: number
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -253,6 +264,7 @@ export type CustomerWhereInput = {
   address?: Prisma.StringFilter<"Customer"> | string
   packageName?: Prisma.StringFilter<"Customer"> | string
   amount?: Prisma.DecimalFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntFilter<"Customer"> | number
   isActive?: Prisma.BoolFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
@@ -266,6 +278,7 @@ export type CustomerOrderByWithRelationInput = {
   address?: Prisma.SortOrder
   packageName?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  dueDay?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -282,6 +295,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   address?: Prisma.StringFilter<"Customer"> | string
   packageName?: Prisma.StringFilter<"Customer"> | string
   amount?: Prisma.DecimalFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntFilter<"Customer"> | number
   isActive?: Prisma.BoolFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
@@ -295,6 +309,7 @@ export type CustomerOrderByWithAggregationInput = {
   address?: Prisma.SortOrder
   packageName?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  dueDay?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -315,6 +330,7 @@ export type CustomerScalarWhereWithAggregatesInput = {
   address?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   packageName?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   amount?: Prisma.DecimalWithAggregatesFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntWithAggregatesFilter<"Customer"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
@@ -326,6 +342,7 @@ export type CustomerCreateInput = {
   address: string
   packageName: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: number
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -339,6 +356,7 @@ export type CustomerUncheckedCreateInput = {
   address: string
   packageName: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: number
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -351,6 +369,7 @@ export type CustomerUpdateInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -364,6 +383,7 @@ export type CustomerUncheckedUpdateInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -377,6 +397,7 @@ export type CustomerCreateManyInput = {
   address: string
   packageName: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: number
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -388,6 +409,7 @@ export type CustomerUpdateManyMutationInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -400,6 +422,7 @@ export type CustomerUncheckedUpdateManyInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -412,6 +435,7 @@ export type CustomerCountOrderByAggregateInput = {
   address?: Prisma.SortOrder
   packageName?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  dueDay?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -421,6 +445,7 @@ export type CustomerAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  dueDay?: Prisma.SortOrder
 }
 
 export type CustomerMaxOrderByAggregateInput = {
@@ -430,6 +455,7 @@ export type CustomerMaxOrderByAggregateInput = {
   address?: Prisma.SortOrder
   packageName?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  dueDay?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -442,6 +468,7 @@ export type CustomerMinOrderByAggregateInput = {
   address?: Prisma.SortOrder
   packageName?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  dueDay?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -451,6 +478,7 @@ export type CustomerSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   ownerId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
+  dueDay?: Prisma.SortOrder
 }
 
 export type CustomerScalarRelationFilter = {
@@ -486,6 +514,7 @@ export type CustomerCreateWithoutPaymentsInput = {
   address: string
   packageName: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: number
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -498,6 +527,7 @@ export type CustomerUncheckedCreateWithoutPaymentsInput = {
   address: string
   packageName: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: number
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -525,6 +555,7 @@ export type CustomerUpdateWithoutPaymentsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -537,6 +568,7 @@ export type CustomerUncheckedUpdateWithoutPaymentsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  dueDay?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -580,6 +612,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   address?: boolean
   packageName?: boolean
   amount?: boolean
+  dueDay?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -594,6 +627,7 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   address?: boolean
   packageName?: boolean
   amount?: boolean
+  dueDay?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -606,6 +640,7 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   address?: boolean
   packageName?: boolean
   amount?: boolean
+  dueDay?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -618,12 +653,13 @@ export type CustomerSelectScalar = {
   address?: boolean
   packageName?: boolean
   amount?: boolean
+  dueDay?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerId" | "name" | "address" | "packageName" | "amount" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerId" | "name" | "address" | "packageName" | "amount" | "dueDay" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   payments?: boolean | Prisma.Customer$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
@@ -643,6 +679,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     address: string
     packageName: string
     amount: runtime.Decimal
+    dueDay: number
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -1076,6 +1113,7 @@ export interface CustomerFieldRefs {
   readonly address: Prisma.FieldRef<"Customer", 'String'>
   readonly packageName: Prisma.FieldRef<"Customer", 'String'>
   readonly amount: Prisma.FieldRef<"Customer", 'Decimal'>
+  readonly dueDay: Prisma.FieldRef<"Customer", 'Int'>
   readonly isActive: Prisma.FieldRef<"Customer", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Customer", 'DateTime'>
