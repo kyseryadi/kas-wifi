@@ -1,6 +1,7 @@
 import { IncomeSource } from '../generated/prisma/enums.js';
 import { prisma } from '../config/prisma.js';
 import { currentMonthRange, parseDateOnly } from '../utils/date.js';
+import { AppError } from '../utils/app-error.js';
 
 interface IncomeInput { description: string; amount: number; incomeDate: string }
 interface ExpenseInput { description: string; amount: number; expenseDate: string }
@@ -54,6 +55,95 @@ export const createExpense = async (ownerId: number, userId: number, input: Expe
   return moneyView(record);
 };
 
+const percentageReportYear = (value?: string) => {
+  const jakartaNow = new Date(Date.now() + (7 * 60 * 60 * 1000));
+  const fallbackYear = jakartaNow.getUTCFullYear();
+  if (!value) return fallbackYear;
+  if (!/^\d{4}$/.test(value)) throw new AppError(422, 'Tahun harus menggunakan format YYYY.', 'INVALID_REPORT_YEAR');
+  const year = Number(value);
+  if (year < 2000 || year > 2100) throw new AppError(422, 'Tahun laporan harus antara 2000 dan 2100.', 'INVALID_REPORT_YEAR');
+  return year;
+};
+
+export const getPercentageReport = async (ownerId: number, yearValue?: string) => {
+  const year = percentageReportYear(yearValue);
+  const start = new Date(Date.UTC(year, 0, 1));
+  const end = new Date(Date.UTC(year + 1, 0, 1));
+  const jakartaOffsetMs = 7 * 60 * 60 * 1000;
+  const paymentStart = new Date(start.getTime() - jakartaOffsetMs);
+  const paymentEnd = new Date(end.getTime() - jakartaOffsetMs);
+
+  const [incomes, megaDataExpenses, payments] = await Promise.all([
+    prisma.income.findMany({
+      where: { ownerId, incomeDate: { gte: start, lt: end } },
+      select: { incomeDate: true, amount: true },
+    }),
+    prisma.expense.findMany({
+      where: {
+        ownerId,
+        expenseDate: { gte: start, lt: end },
+        description: { contains: 'MEGA DATA', mode: 'insensitive' },
+      },
+      select: { expenseDate: true, amount: true },
+    }),
+    prisma.customerPayment.findMany({
+      where: { ownerId, paidAt: { gte: paymentStart, lt: paymentEnd } },
+      select: { customerId: true, paidAt: true },
+    }),
+  ]);
+
+  const monthlyIncome = Array<number>(12).fill(0);
+  const monthlyMegaDataExpense = Array<number>(12).fill(0);
+  const monthlyPaidCustomers = Array.from({ length: 12 }, () => new Set<number>());
+
+  incomes.forEach((income) => {
+    monthlyIncome[income.incomeDate.getUTCMonth()]! += Number(income.amount);
+  });
+  megaDataExpenses.forEach((expense) => {
+    monthlyMegaDataExpense[expense.expenseDate.getUTCMonth()]! += Number(expense.amount);
+  });
+  payments.forEach((payment) => {
+    const jakartaPaidAt = new Date(payment.paidAt.getTime() + jakartaOffsetMs);
+    monthlyPaidCustomers[jakartaPaidAt.getUTCMonth()]!.add(payment.customerId);
+  });
+
+  const months = Array.from({ length: 12 }, (_, monthIndex) => {
+    const totalIncome = monthlyIncome[monthIndex]!;
+    const megaDataExpense = monthlyMegaDataExpense[monthIndex]!;
+    const paidCustomerCount = monthlyPaidCustomers[monthIndex]!.size;
+    const customerDeduction = paidCustomerCount * 10_000;
+    const percentageBase = totalIncome - megaDataExpense - customerDeduction;
+    const percentageAmount = percentageBase * 0.2;
+    const customerAddition = paidCustomerCount * 5_000;
+    return {
+      month: `${year}-${String(monthIndex + 1).padStart(2, '0')}`,
+      totalIncome,
+      megaDataExpense,
+      paidCustomerCount,
+      customerDeduction,
+      percentageBase,
+      percentageAmount,
+      customerAddition,
+      result: percentageAmount + customerAddition,
+    };
+  });
+
+  return {
+    year,
+    formula: {
+      percentageRate: 20,
+      deductionPerPaidCustomer: 10_000,
+      additionPerPaidCustomer: 5_000,
+    },
+    summary: months.reduce((summary, month) => ({
+      totalIncome: summary.totalIncome + month.totalIncome,
+      megaDataExpense: summary.megaDataExpense + month.megaDataExpense,
+      paidCustomerCount: summary.paidCustomerCount + month.paidCustomerCount,
+      result: summary.result + month.result,
+    }), { totalIncome: 0, megaDataExpense: 0, paidCustomerCount: 0, result: 0 }),
+    months,
+  };
+};
 export const getReport = async (ownerId: number, startDate?: string, endDate?: string) => {
   const fallback = currentMonthRange();
   const start = startDate ? parseDateOnly(startDate, 'Tanggal mulai') : fallback.start;

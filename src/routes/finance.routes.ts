@@ -14,5 +14,6 @@ router.post('/incomes', authorize(UserRole.OWNER, UserRole.ADMIN), validate(crea
 router.get('/expenses', authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.CS), asyncHandler(controller.listExpenses));
 router.post('/expenses', authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.CS), validate(createExpenseSchema), asyncHandler(controller.createExpense));
 router.get('/reports/summary', authorize(UserRole.OWNER, UserRole.ADMIN), asyncHandler(controller.report));
+router.get('/reports/percentage', authorize(UserRole.OWNER, UserRole.ADMIN), asyncHandler(controller.percentageReport));
 
 export default router;

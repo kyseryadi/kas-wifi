@@ -28,3 +28,11 @@ export const report = async (request: Request, response: Response) => {
   );
   response.json({ success: true, data });
 };
+
+export const percentageReport = async (request: Request, response: Response) => {
+  const data = await financeService.getPercentageReport(
+    getOwnerId(request),
+    request.query.year as string | undefined,
+  );
+  response.json({ success: true, data });
+};
