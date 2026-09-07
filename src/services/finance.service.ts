@@ -156,8 +156,54 @@ export const getReport = async (ownerId: number, startDate?: string, endDate?: s
     prisma.expense.findMany({ where: { ownerId, expenseDate: { gte: start, lte: end } }, orderBy: { expenseDate: 'desc' } }),
   ]);
 
+  const reportYears = Array.from(
+    { length: end.getUTCFullYear() - start.getUTCFullYear() + 1 },
+    (_, index) => start.getUTCFullYear() + index,
+  );
+  const percentageReports = await Promise.all(
+    reportYears.map((year) => getPercentageReport(ownerId, String(year))),
+  );
+  const calculatedExpenses = percentageReports.flatMap((percentageReport) =>
+    percentageReport.months.flatMap((month, monthIndex) => {
+      const expenseDate = new Date(Date.UTC(percentageReport.year, monthIndex + 1, 0));
+      const hasActivity = month.totalIncome !== 0
+        || month.megaDataExpense !== 0
+        || month.paidCustomerCount !== 0
+        || month.result !== 0;
+      if (!hasActivity || expenseDate < start || expenseDate > end) return [];
+
+      const monthName = new Intl.DateTimeFormat('id-ID', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      }).format(expenseDate);
+      return [{
+        id: -(percentageReport.year * 100 + monthIndex + 1),
+        description: `Hasil presentase ${monthName}`,
+        amount: month.result,
+        expenseDate,
+        isCalculated: true,
+        percentageCalculation: {
+          totalIncome: month.totalIncome,
+          megaDataExpense: month.megaDataExpense,
+          paidCustomerCount: month.paidCustomerCount,
+          customerDeduction: month.customerDeduction,
+          percentageBase: month.percentageBase,
+          percentageAmount: month.percentageAmount,
+          customerAddition: month.customerAddition,
+        },
+      }];
+    }),
+  );
+
   const totalIncome = Number(incomeAggregate._sum.amount ?? 0);
-  const totalExpense = Number(expenseAggregate._sum.amount ?? 0);
+  const calculatedPercentageExpense = calculatedExpenses.reduce((total, expense) => total + expense.amount, 0);
+  const totalExpense = Number(expenseAggregate._sum.amount ?? 0) + calculatedPercentageExpense;
+  const reportExpenses = [
+    ...expenses.map(moneyView),
+    ...calculatedExpenses,
+  ].sort((first, second) => second.expenseDate.getTime() - first.expenseDate.getTime());
+
   return {
     period: { start, end },
     summary: {
@@ -165,9 +211,9 @@ export const getReport = async (ownerId: number, startDate?: string, endDate?: s
       totalExpense,
       balance: totalIncome - totalExpense,
       incomeCount: incomeAggregate._count,
-      expenseCount: expenseAggregate._count,
+      expenseCount: expenseAggregate._count + calculatedExpenses.length,
     },
     incomes: incomes.map(moneyView),
-    expenses: expenses.map(moneyView),
+    expenses: reportExpenses,
   };
 };
