@@ -401,7 +401,8 @@ export const ModelName = {
   Customer: 'Customer',
   CustomerPayment: 'CustomerPayment',
   Income: 'Income',
-  Expense: 'Expense'
+  Expense: 'Expense',
+  MonthlyClosing: 'MonthlyClosing'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "customer" | "customerPayment" | "income" | "expense"
+    modelProps: "user" | "customer" | "customerPayment" | "income" | "expense" | "monthlyClosing"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -791,6 +792,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MonthlyClosing: {
+      payload: Prisma.$MonthlyClosingPayload<ExtArgs>
+      fields: Prisma.MonthlyClosingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MonthlyClosingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MonthlyClosingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>
+        }
+        findFirst: {
+          args: Prisma.MonthlyClosingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MonthlyClosingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>
+        }
+        findMany: {
+          args: Prisma.MonthlyClosingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>[]
+        }
+        create: {
+          args: Prisma.MonthlyClosingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>
+        }
+        createMany: {
+          args: Prisma.MonthlyClosingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MonthlyClosingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>[]
+        }
+        delete: {
+          args: Prisma.MonthlyClosingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>
+        }
+        update: {
+          args: Prisma.MonthlyClosingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>
+        }
+        deleteMany: {
+          args: Prisma.MonthlyClosingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MonthlyClosingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MonthlyClosingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>[]
+        }
+        upsert: {
+          args: Prisma.MonthlyClosingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthlyClosingPayload>
+        }
+        aggregate: {
+          args: Prisma.MonthlyClosingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMonthlyClosing>
+        }
+        groupBy: {
+          args: Prisma.MonthlyClosingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthlyClosingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MonthlyClosingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthlyClosingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -908,6 +983,22 @@ export const ExpenseScalarFieldEnum = {
 } as const
 
 export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
+
+
+export const MonthlyClosingScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  month: 'month',
+  openingBalance: 'openingBalance',
+  totalIncome: 'totalIncome',
+  totalExpense: 'totalExpense',
+  closingBalance: 'closingBalance',
+  closedAt: 'closedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MonthlyClosingScalarFieldEnum = (typeof MonthlyClosingScalarFieldEnum)[keyof typeof MonthlyClosingScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1214,6 +1305,7 @@ export type GlobalOmitConfig = {
   customerPayment?: Prisma.CustomerPaymentOmit
   income?: Prisma.IncomeOmit
   expense?: Prisma.ExpenseOmit
+  monthlyClosing?: Prisma.MonthlyClosingOmit
 }
 
 /* Types for Logging */

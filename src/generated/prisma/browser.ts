@@ -42,3 +42,8 @@ export type Income = Prisma.IncomeModel
  * 
  */
 export type Expense = Prisma.ExpenseModel
+/**
+ * Model MonthlyClosing
+ * 
+ */
+export type MonthlyClosing = Prisma.MonthlyClosingModel

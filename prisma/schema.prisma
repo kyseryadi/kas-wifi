@@ -115,3 +115,20 @@ model Expense {
   @@index([ownerId, expenseDate])
   @@map("expenses")
 }
+
+model MonthlyClosing {
+  id             Int      @id @default(autoincrement())
+  ownerId        Int      @map("owner_id")
+  month          DateTime @db.Date
+  openingBalance Decimal  @map("opening_balance") @db.Decimal(15, 2)
+  totalIncome    Decimal  @map("total_income") @db.Decimal(15, 2)
+  totalExpense   Decimal  @map("total_expense") @db.Decimal(15, 2)
+  closingBalance Decimal  @map("closing_balance") @db.Decimal(15, 2)
+  closedAt       DateTime @default(now()) @map("closed_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@unique([ownerId, month])
+  @@index([ownerId, month])
+  @@map("monthly_closings")
+}

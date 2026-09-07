@@ -55,7 +55,8 @@ export const ModelName = {
   Customer: 'Customer',
   CustomerPayment: 'CustomerPayment',
   Income: 'Income',
-  Expense: 'Expense'
+  Expense: 'Expense',
+  MonthlyClosing: 'MonthlyClosing'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -152,6 +153,22 @@ export const ExpenseScalarFieldEnum = {
 } as const
 
 export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
+
+
+export const MonthlyClosingScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  month: 'month',
+  openingBalance: 'openingBalance',
+  totalIncome: 'totalIncome',
+  totalExpense: 'totalExpense',
+  closingBalance: 'closingBalance',
+  closedAt: 'closedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MonthlyClosingScalarFieldEnum = (typeof MonthlyClosingScalarFieldEnum)[keyof typeof MonthlyClosingScalarFieldEnum]
 
 
 export const SortOrder = {

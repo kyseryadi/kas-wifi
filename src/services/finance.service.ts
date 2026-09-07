@@ -144,11 +144,7 @@ export const getPercentageReport = async (ownerId: number, yearValue?: string) =
     months,
   };
 };
-export const getReport = async (ownerId: number, startDate?: string, endDate?: string) => {
-  const fallback = currentMonthRange();
-  const start = startDate ? parseDateOnly(startDate, 'Tanggal mulai') : fallback.start;
-  const end = endDate ? parseDateOnly(endDate, 'Tanggal akhir') : fallback.end;
-
+const getPeriodReport = async (ownerId: number, start: Date, end: Date) => {
   const [incomeAggregate, expenseAggregate, incomes, expenses] = await Promise.all([
     prisma.income.aggregate({ where: { ownerId, incomeDate: { gte: start, lte: end } }, _sum: { amount: true }, _count: true }),
     prisma.expense.aggregate({ where: { ownerId, expenseDate: { gte: start, lte: end } }, _sum: { amount: true }, _count: true }),
@@ -215,5 +211,90 @@ export const getReport = async (ownerId: number, startDate?: string, endDate?: s
     },
     incomes: incomes.map(moneyView),
     expenses: reportExpenses,
+  };
+};
+
+const jakartaCurrentMonthStart = () => {
+  const jakartaOffsetMs = 7 * 60 * 60 * 1000;
+  const jakartaNow = new Date(Date.now() + jakartaOffsetMs);
+  return new Date(Date.UTC(jakartaNow.getUTCFullYear(), jakartaNow.getUTCMonth(), 1));
+};
+
+export const ensureMonthlyClosings = async (ownerId: number) => {
+  const currentMonthStart = jakartaCurrentMonthStart();
+  let latestClosing = await prisma.monthlyClosing.findFirst({
+    where: { ownerId },
+    orderBy: { month: 'desc' },
+  });
+
+  let monthStart: Date;
+  if (latestClosing) {
+    monthStart = new Date(Date.UTC(
+      latestClosing.month.getUTCFullYear(),
+      latestClosing.month.getUTCMonth() + 1,
+      1,
+    ));
+  } else {
+    const [firstIncome, firstExpense] = await Promise.all([
+      prisma.income.aggregate({ where: { ownerId }, _min: { incomeDate: true } }),
+      prisma.expense.aggregate({ where: { ownerId }, _min: { expenseDate: true } }),
+    ]);
+    const firstDates = [firstIncome._min.incomeDate, firstExpense._min.expenseDate]
+      .filter((date): date is Date => date instanceof Date)
+      .sort((first, second) => first.getTime() - second.getTime());
+    if (!firstDates[0]) return null;
+    monthStart = new Date(Date.UTC(firstDates[0].getUTCFullYear(), firstDates[0].getUTCMonth(), 1));
+  }
+
+  while (monthStart < currentMonthStart) {
+    const monthEnd = new Date(Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth() + 1, 0));
+    const report = await getPeriodReport(ownerId, monthStart, monthEnd);
+    const openingBalance = Number(latestClosing?.closingBalance ?? 0);
+    const closingBalance = openingBalance + report.summary.totalIncome - report.summary.totalExpense;
+
+    latestClosing = await prisma.monthlyClosing.upsert({
+      where: { ownerId_month: { ownerId, month: monthStart } },
+      update: {},
+      create: {
+        ownerId,
+        month: monthStart,
+        openingBalance,
+        totalIncome: report.summary.totalIncome,
+        totalExpense: report.summary.totalExpense,
+        closingBalance,
+      },
+    });
+    monthStart = new Date(Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth() + 1, 1));
+  }
+
+  return latestClosing;
+};
+
+export const getReport = async (ownerId: number, startDate?: string, endDate?: string) => {
+  const fallback = currentMonthRange();
+  const start = startDate ? parseDateOnly(startDate, 'Tanggal mulai') : fallback.start;
+  const end = endDate ? parseDateOnly(endDate, 'Tanggal akhir') : fallback.end;
+  if (end < start) throw new AppError(422, 'Tanggal akhir tidak boleh sebelum tanggal mulai.', 'INVALID_REPORT_PERIOD');
+
+  await ensureMonthlyClosings(ownerId);
+  const report = await getPeriodReport(ownerId, start, end);
+  const reportMonthStart = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+  const previousClosing = await prisma.monthlyClosing.findFirst({
+    where: { ownerId, month: { lt: reportMonthStart } },
+    orderBy: { month: 'desc' },
+  });
+  const openingBalance = Number(previousClosing?.closingBalance ?? 0);
+
+  return {
+    ...report,
+    summary: {
+      ...report.summary,
+      openingBalance,
+      balance: openingBalance + report.summary.totalIncome - report.summary.totalExpense,
+    },
+    openingBalanceSource: previousClosing ? {
+      month: previousClosing.month,
+      closedAt: previousClosing.closedAt,
+    } : null,
   };
 };
