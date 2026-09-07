@@ -270,6 +270,18 @@ export const ensureMonthlyClosings = async (ownerId: number) => {
   return latestClosing;
 };
 
+export const closeAllOwners = async () => {
+  const owners = await prisma.user.findMany({
+    where: { parentId: 0, isActive: true },
+    select: { id: true },
+  });
+  let latestClosingCount = 0;
+  for (const owner of owners) {
+    const closing = await ensureMonthlyClosings(owner.id);
+    if (closing) latestClosingCount += 1;
+  }
+  return { processedOwners: owners.length, ownersWithClosing: latestClosingCount };
+};
 export const getReport = async (ownerId: number, startDate?: string, endDate?: string) => {
   const fallback = currentMonthRange();
   const start = startDate ? parseDateOnly(startDate, 'Tanggal mulai') : fallback.start;

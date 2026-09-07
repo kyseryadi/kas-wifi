@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { env } from '../config/env.js';
 import * as financeService from '../services/finance.service.js';
 import { getOwnerId } from '../utils/tenant.js';
 
@@ -35,4 +36,13 @@ export const percentageReport = async (request: Request, response: Response) => 
     request.query.year as string | undefined,
   );
   response.json({ success: true, data });
+};
+
+export const monthlyClosingCron = async (request: Request, response: Response) => {
+  if (!env.cronSecret || request.headers.authorization !== `Bearer ${env.cronSecret}`) {
+    response.status(401).json({ success: false, code: 'UNAUTHORIZED_CRON', message: 'Akses cron tidak valid.' });
+    return;
+  }
+  const data = await financeService.closeAllOwners();
+  response.json({ success: true, message: 'Closing bulanan selesai diproses.', data });
 };

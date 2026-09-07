@@ -11,6 +11,7 @@ const envSchema = Joi.object({
   GOOGLE_CLIENT_ID: Joi.string().allow('').default(''),
   GOOGLE_AUTO_REGISTER_OWNER: Joi.boolean().truthy('true').falsy('false').default(true),
   LOG_LEVEL: Joi.string().valid('error', 'warn', 'info', 'http', 'debug').default('info'),
+  CRON_SECRET: Joi.string().min(16).allow('').default(''),
 }).unknown(true);
 
 const { error, value } = envSchema.validate(process.env, {
@@ -32,4 +33,5 @@ export const env = {
   googleClientId: value.GOOGLE_CLIENT_ID as string,
   googleAutoRegisterOwner: value.GOOGLE_AUTO_REGISTER_OWNER as boolean,
   logLevel: value.LOG_LEVEL as string,
+  cronSecret: value.CRON_SECRET as string,
 };

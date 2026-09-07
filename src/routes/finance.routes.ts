@@ -8,6 +8,7 @@ import { asyncHandler } from '../utils/async-handler.js';
 import { createExpenseSchema, createIncomeSchema } from '../validation/finance.validation.js';
 
 const router = Router();
+router.get('/cron/monthly-closing', asyncHandler(controller.monthlyClosingCron));
 router.use(authenticate);
 router.get('/incomes', authorize(UserRole.OWNER, UserRole.ADMIN), asyncHandler(controller.listIncomes));
 router.post('/incomes', authorize(UserRole.OWNER, UserRole.ADMIN), validate(createIncomeSchema), asyncHandler(controller.createIncome));
